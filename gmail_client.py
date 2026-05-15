@@ -45,10 +45,16 @@ def fetch_csv_attachment(target_date: date) -> bytes:
     msg = email_lib.message_from_bytes(raw_email, policy=policy.default)
 
     for part in msg.walk():
-        if part.get_content_disposition() == "attachment":
-            filename = part.get_filename() or ""
-            if filename.endswith(".csv"):
-                logger.info("Found CSV attachment: %s", filename)
-                return part.get_payload(decode=True)
+        filename = part.get_filename() or ""
+        content_type = part.get_content_type()
+        disposition = part.get_content_disposition() or ""
+
+        is_csv_by_name = filename.lower().endswith(".csv")
+        is_csv_by_type = content_type in ("text/csv", "application/csv", "application/octet-stream")
+        is_attached = disposition in ("attachment", "inline") or filename != ""
+
+        if is_attached and (is_csv_by_name or is_csv_by_type):
+            logger.info("Found CSV attachment: %s (type=%s disposition=%s)", filename, content_type, disposition)
+            return part.get_payload(decode=True)
 
     raise AttachmentNotFoundError(f"No CSV attachment in email with subject: {subject}")
