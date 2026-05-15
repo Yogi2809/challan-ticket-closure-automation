@@ -25,8 +25,16 @@ def fetch_csv_attachment(target_date: date) -> bytes:
         mail.login(config.GMAIL_ADDRESS, config.GMAIL_APP_PASSWORD)
         mail.select("INBOX")
 
-        _, message_ids = mail.search(None, f'SUBJECT "{subject}"')
+        # ON filter catches emails from any time today (9 AM, 9:30 AM, etc.)
+        # regardless of what time the cron fires. IMAP date is DD-Mon-YYYY.
+        imap_date = target_date.strftime("%d-%b-%Y")
+        _, message_ids = mail.search(None, f'ON "{imap_date}" SUBJECT "{subject}"')
         ids = message_ids[0].split()
+
+        # Fallback: timezone edge-case where IMAP date differs — retry subject-only.
+        if not ids:
+            _, message_ids = mail.search(None, f'SUBJECT "{subject}"')
+            ids = message_ids[0].split()
 
         if not ids:
             raise EmailNotFoundError(f"No email found with subject: {subject}")
