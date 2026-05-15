@@ -24,7 +24,7 @@ def load_and_filter(csv_bytes: bytes) -> pd.DataFrame:
 
 def apply_results(df: pd.DataFrame, results: dict) -> pd.DataFrame:
     df = df.copy()
-    df["UPDATED_RESULT"] = df["APPOINTMENT_ORDER_ID"].astype(str).map(results)
+    df.loc[:, "UPDATED_RESULT"] = df["APPOINTMENT_ORDER_ID"].astype(str).map(results)
     return df
 
 
