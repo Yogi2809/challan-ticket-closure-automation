@@ -1,0 +1,9 @@
+[build]
+builder = "nixpacks"
+
+[[services]]
+name = "challan-cron"
+
+[services.deploy]
+startCommand = "python main.py"
+cronSchedule = "30 4 * * *"
