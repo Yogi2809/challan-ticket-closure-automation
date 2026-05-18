@@ -1,8 +1,11 @@
 import logging
+import urllib3
 
 import requests
 
 import config
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +36,7 @@ def close_ticket(ticket_id: str) -> bool:
         "Authorization": f"Basic {config.ZENDESK_AUTH_TOKEN}",
     }
 
-    response = requests.put(url, json=_TICKET_PAYLOAD, headers=headers)
+    response = requests.put(url, json=_TICKET_PAYLOAD, headers=headers, verify=False)
     logger.info("Zendesk ticket %s → HTTP %s", ticket_id, response.status_code)
 
     if response.status_code != 200:
