@@ -36,7 +36,12 @@ def close_ticket(ticket_id: str) -> bool:
         "Authorization": f"Basic {config.ZENDESK_AUTH_TOKEN}",
     }
 
-    response = requests.put(url, json=_TICKET_PAYLOAD, headers=headers, verify=False)
+    try:
+        response = requests.put(url, json=_TICKET_PAYLOAD, headers=headers, verify=False, timeout=20)
+    except requests.exceptions.RequestException as exc:
+        logger.error("Zendesk request failed for ticket %s: %s", ticket_id, exc)
+        return False
+
     logger.info("Zendesk ticket %s → HTTP %s", ticket_id, response.status_code)
 
     if response.status_code != 200:
