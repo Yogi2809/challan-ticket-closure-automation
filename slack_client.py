@@ -55,10 +55,10 @@ def post_report(report: dict, excel_path: str | None) -> None:
 
     filename = excel_path.split("/")[-1]
 
-    url_resp = requests.post(
+    url_resp = requests.get(
         "https://slack.com/api/files.getUploadURLExternal",
         headers=headers,
-        json={"filename": filename, "length": len(file_bytes)},
+        params={"filename": filename, "length": len(file_bytes)},
     )
     url_data = url_resp.json()
     if not url_data.get("ok"):
