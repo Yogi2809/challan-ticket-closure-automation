@@ -66,14 +66,13 @@ def post_report(report: dict, excel_path: str | None) -> None:
         return
     logger.info("Slack getUploadURLExternal ok, file_id=%s", url_data.get("file_id"))
 
-    put_resp = requests.put(
+    put_resp = requests.post(
         url_data["upload_url"],
-        data=file_bytes,
-        headers={"Content-Type": "application/octet-stream"},
+        files={"file": (filename, file_bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")},
     )
-    logger.info("Slack file PUT status: %s", put_resp.status_code)
+    logger.info("Slack file upload status: %s — %s", put_resp.status_code, put_resp.text[:50])
     if put_resp.status_code not in (200, 201):
-        logger.error("Slack file PUT failed: %s", put_resp.text)
+        logger.error("Slack file upload failed: %s", put_resp.text)
         return
 
     complete_resp = requests.post(
