@@ -64,10 +64,16 @@ def post_report(report: dict, excel_path: str | None) -> None:
     if not url_data.get("ok"):
         logger.error("Slack getUploadURLExternal failed: %s", url_data)
         return
+    logger.info("Slack getUploadURLExternal ok, file_id=%s", url_data.get("file_id"))
 
-    put_resp = requests.put(url_data["upload_url"], data=file_bytes)
+    put_resp = requests.put(
+        url_data["upload_url"],
+        data=file_bytes,
+        headers={"Content-Type": "application/octet-stream"},
+    )
+    logger.info("Slack file PUT status: %s", put_resp.status_code)
     if put_resp.status_code not in (200, 201):
-        logger.error("Slack file PUT failed with status %s", put_resp.status_code)
+        logger.error("Slack file PUT failed: %s", put_resp.text)
         return
 
     complete_resp = requests.post(
@@ -78,5 +84,8 @@ def post_report(report: dict, excel_path: str | None) -> None:
             "channel_id": config.SLACK_CHANNEL_ID,
         },
     )
-    if not complete_resp.json().get("ok"):
-        logger.error("Slack completeUploadExternal failed: %s", complete_resp.json())
+    complete_data = complete_resp.json()
+    if not complete_data.get("ok"):
+        logger.error("Slack completeUploadExternal failed: %s", complete_data)
+    else:
+        logger.info("Slack file uploaded successfully to channel %s", config.SLACK_CHANNEL_ID)
