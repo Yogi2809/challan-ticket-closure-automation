@@ -35,7 +35,7 @@ def build_report(df: pd.DataFrame) -> dict:
     error = int((df["UPDATED_RESULT"] == "ERROR").sum())
 
     mismatch_rows = df[df["UPDATED_RESULT"].isin(["MISMATCH", "ERROR"])][
-        ["APPOINTMENT_ORDER_ID", "TICKET_ID", "TOTAL_CHALLANS", "CLOSED_CHALLANS", "UPDATED_RESULT"]
+        ["APPOINTMENT_ORDER_ID", "ID", "TOTAL_CHALLANS", "CLOSED_CHALLANS", "UPDATED_RESULT"]
     ].to_dict("records")
 
     return {

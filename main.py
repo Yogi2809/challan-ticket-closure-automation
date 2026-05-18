@@ -35,7 +35,7 @@ def run() -> None:
     results: dict[str, str] = {}
     for _, row in df.iterrows():
         appt_id = str(row["APPOINTMENT_ORDER_ID"])
-        ticket_id = str(row["TICKET_ID"])
+        ticket_id = str(row["ID"])
 
         try:
             total = float(row["TOTAL_CHALLANS"])

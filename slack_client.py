@@ -24,11 +24,11 @@ def _build_message(report: dict) -> str:
         lines += [
             "",
             "*Mismatch / Error Details:*",
-            "`APPOINTMENT_ORDER_ID | TICKET_ID | TOTAL_CHALLANS | CLOSED_CHALLANS | RESULT`",
+            "`APPOINTMENT_ORDER_ID | ID | TOTAL_CHALLANS | CLOSED_CHALLANS | RESULT`",
         ]
         for row in report["mismatch_rows"]:
             lines.append(
-                f"`{row['APPOINTMENT_ORDER_ID']} | {row['TICKET_ID']} | "
+                f"`{row['APPOINTMENT_ORDER_ID']} | {row['ID']} | "
                 f"{row['TOTAL_CHALLANS']} | {row['CLOSED_CHALLANS']} | {row['UPDATED_RESULT']}`"
             )
 
