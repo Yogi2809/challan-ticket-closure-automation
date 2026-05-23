@@ -1,9 +1,7 @@
 name: Challan Ticket Closure
 
 on:
-  schedule:
-    - cron: "30 4 * * *"  # 10:00 AM IST daily
-  workflow_dispatch:        # allows manual trigger from GitHub UI
+  workflow_dispatch:        # triggered by cron-job.org at 4:30 AM UTC (10:00 AM IST) daily
 
 jobs:
   run:
