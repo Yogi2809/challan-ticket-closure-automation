@@ -2,7 +2,7 @@ import pandas as pd
 from io import BytesIO
 
 
-def load_and_filter(csv_bytes: bytes) -> pd.DataFrame:
+def load_and_filter(csv_bytes: bytes) -> tuple[pd.DataFrame, str | None]:
     df = pd.read_csv(BytesIO(csv_bytes), index_col=False)
     df.columns = [col.strip().upper() for col in df.columns]
 
@@ -19,7 +19,13 @@ def load_and_filter(csv_bytes: bytes) -> pd.DataFrame:
         & is_filled(df["CLOSED_CHALLANS"])
     )
 
-    return df[mask].reset_index(drop=True)
+    alert: str | None = None
+    if "SOURCE_CODE" in df.columns:
+        mask = mask & (df["SOURCE_CODE"].astype(str).str.strip().str.upper() == "DEX")
+    else:
+        alert = "SOURCE_CODE column missing from CSV — SOURCE_CODE filter skipped, all eligible rows processed"
+
+    return df[mask].reset_index(drop=True), alert
 
 
 def apply_results(df: pd.DataFrame, results: dict) -> pd.DataFrame:

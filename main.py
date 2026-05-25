@@ -25,11 +25,14 @@ def run() -> None:
         post_report({"total": 0, "solved": 0, "mismatch": 0, "error": 0, "mismatch_rows": [], "alert": str(exc)}, None)
         return
 
-    df = load_and_filter(csv_bytes)
+    df, source_code_alert = load_and_filter(csv_bytes)
+    if source_code_alert:
+        logger.warning(source_code_alert)
     if df.empty:
         msg = "No eligible rows after filtering"
         logger.warning(msg)
-        post_report({"total": 0, "solved": 0, "mismatch": 0, "error": 0, "mismatch_rows": [], "alert": msg}, None)
+        alert_msg = f"{msg}. Note: {source_code_alert}" if source_code_alert else msg
+        post_report({"total": 0, "solved": 0, "mismatch": 0, "error": 0, "mismatch_rows": [], "alert": alert_msg}, None)
         return
 
     results: dict[str, str] = {}
@@ -58,6 +61,8 @@ def run() -> None:
     logger.info("Saved Excel: %s", excel_path)
 
     report = build_report(df)
+    if source_code_alert:
+        report["alert"] = source_code_alert
     post_report(report, excel_path)
     logger.info("Run complete. Solved=%s Mismatch=%s Error=%s", report["solved"], report["mismatch"], report["error"])
 
