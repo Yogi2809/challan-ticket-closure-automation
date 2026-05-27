@@ -17,6 +17,7 @@ def load_and_filter(csv_bytes: bytes) -> tuple[pd.DataFrame, str | None]:
         & is_blank(df["OPEN_CHALLANS"])
         & is_filled(df["APPOINTMENT_ORDER_ID"])
         & is_filled(df["CLOSED_CHALLANS"])
+        & (df["FIND_STATUS"].astype(str).str.strip().str.upper() == "RESOLVED")
     )
 
     alert: str | None = None
