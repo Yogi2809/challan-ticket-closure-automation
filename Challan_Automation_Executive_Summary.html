@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Challan Ticket Closure Automation — Executive Summary</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f4f6f9;
+      color: #1a1a2e;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+      color: white;
+      padding: 40px 48px 32px;
+    }
+    .header .tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      color: #e0e0e0;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+    .header .meta {
+      font-size: 13px;
+      color: #a0aec0;
+    }
+    .header .meta span { margin-right: 20px; }
+
+    .body { padding: 40px 48px; }
+
+    .section { margin-bottom: 36px; }
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #0f3460;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e8edf5;
+    }
+    p {
+      font-size: 14.5px;
+      line-height: 1.75;
+      color: #444;
+    }
+
+    /* Stats row */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+    .stat-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    .stat-card .num {
+      font-size: 32px;
+      font-weight: 800;
+      color: #0f3460;
+      line-height: 1;
+    }
+    .stat-card .label {
+      font-size: 12px;
+      color: #718096;
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* Filter table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    thead tr {
+      background: #0f3460;
+      color: white;
+    }
+    thead th {
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+    tbody tr { border-bottom: 1px solid #edf2f7; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:nth-child(even) { background: #f8fafc; }
+    tbody td { padding: 11px 16px; color: #444; }
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+    .badge.blank  { background: #fff3cd; color: #856404; }
+    .badge.filled { background: #d1ecf1; color: #0c5460; }
+    .badge.match  { background: #d4edda; color: #155724; }
+    .badge.dex    { background: #e8d5f5; color: #6f2da8; }
+    .badge.resolved { background: #cce5ff; color: #004085; }
+
+    /* Timeline */
+    .timeline { list-style: none; }
+    .timeline li {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 18px;
+      align-items: flex-start;
+    }
+    .tl-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #0f3460;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .tl-content { font-size: 14px; color: #444; line-height: 1.6; }
+    .tl-content strong { color: #1a1a2e; }
+
+    /* Architecture pills */
+    .arch {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .arch-step {
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .arch-arrow {
+      color: #a0aec0;
+      font-size: 18px;
+      padding: 0 6px;
+    }
+
+    .footer {
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      padding: 20px 48px;
+      font-size: 12px;
+      color: #a0aec0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer strong { color: #718096; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="tag">DEX Team · Automation</div>
+    <h1>Challan Ticket Closure Automation</h1>
+    <div class="meta">
+      <span>📅 May 2026</span>
+      <span>🚀 Deployed on GitHub Actions</span>
+      <span>⏰ Runs daily at 10:00 AM IST</span>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- OVERVIEW -->
+    <div class="section">
+      <div class="section-title">Overview</div>
+      <p>
+        A fully automated daily cron worker that reads a CSV report from Gmail, validates challan data against defined business rules, closes eligible Zendesk tickets, and sends a formatted Slack report with the results Excel sheet attached — all without any manual intervention.
+      </p>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="num">6</div>
+        <div class="label">Active Filters</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">10 AM</div>
+        <div class="label">Auto-trigger (IST)</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">0</div>
+        <div class="label">Manual Steps Required</div>
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="section">
+      <div class="section-title">How It Works</div>
+      <div class="arch">
+        <div class="arch-step">📧 Gmail (IMAP)</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-step">📄 CSV Download</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-step">🔍 Filter &amp; Validate</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-step">🎫 Zendesk Close</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-step">📊 Excel Report</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-step">💬 Slack Notify</div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="section">
+      <div class="section-title">Active Filters (all 6 must pass)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Column</th>
+            <th>Condition</th>
+            <th>Logic</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><strong>UTF_CHALLANS</strong></td>
+            <td><span class="badge blank">Must be Blank</span></td>
+            <td>No unresolved UTF challans</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><strong>OPEN_CHALLANS</strong></td>
+            <td><span class="badge blank">Must be Blank</span></td>
+            <td>No open challans pending</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><strong>APPOINTMENT_ORDER_ID</strong></td>
+            <td><span class="badge filled">Must be Filled</span></td>
+            <td>Valid appointment reference required</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><strong>CLOSED_CHALLANS</strong></td>
+            <td><span class="badge filled">Must be Filled</span></td>
+            <td>Closed challan count must exist</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><strong>FIND_STATUS</strong></td>
+            <td><span class="badge resolved">== RESOLVED</span></td>
+            <td>Only fully resolved cases are closed</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><strong>SOURCE_CODE</strong></td>
+            <td><span class="badge dex">== DEX</span></td>
+            <td>Only DEX source tickets are processed</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- VALIDATION -->
+    <div class="section">
+      <div class="section-title">Ticket Closure Validation</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Condition</th>
+            <th>Action</th>
+            <th>Result Tag</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>TOTAL_CHALLANS == CLOSED_CHALLANS</td>
+            <td>Call Zendesk PUT API → mark solved</td>
+            <td><span class="badge match">SOLVED</span></td>
+          </tr>
+          <tr>
+            <td>TOTAL_CHALLANS ≠ CLOSED_CHALLANS</td>
+            <td>Skip — counts don't match</td>
+            <td><span class="badge blank">MISMATCH</span></td>
+          </tr>
+          <tr>
+            <td>API call fails / invalid values</td>
+            <td>Log error, continue with next</td>
+            <td><span class="badge blank">ERROR</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- WHAT WAS BUILT -->
+    <div class="section">
+      <div class="section-title">What Was Built</div>
+      <ul class="timeline">
+        <li>
+          <div class="tl-dot"></div>
+          <div class="tl-content"><strong>Gmail IMAP reader</strong> — Fetches today's CSV attachment from the email subject <em>"RAW - Challan OPS(VAS) closure_YYYY-MM-DD"</em>. Always picks the latest email in the thread.</div>
+        </li>
+        <li>
+          <div class="tl-dot"></div>
+          <div class="tl-content"><strong>Filter &amp; validation engine</strong> — Applies all 6 filters, then validates TOTAL_CHALLANS == CLOSED_CHALLANS per row before any ticket is touched.</div>
+        </li>
+        <li>
+          <div class="tl-dot"></div>
+          <div class="tl-content"><strong>Zendesk API integration</strong> — PUT request per ticket with solved status, custom comment, and required custom field values. Handles SSL, timeouts, and API errors gracefully.</div>
+        </li>
+        <li>
+          <div class="tl-dot"></div>
+          <div class="tl-content"><strong>Excel output</strong> — Saves the filtered sheet with an <em>UPDATED_RESULT</em> column (SOLVED / MISMATCH / ERROR) for every processed row.</div>
+        </li>
+        <li>
+          <div class="tl-dot"></div>
+          <div class="tl-content"><strong>Slack report</strong> — Posts a summary (Total / Solved / Mismatch / Error counts + mismatch details) and uploads the Excel sheet directly to the channel.</div>
+        </li>
+        <li>
+          <div class="tl-dot"></div>
+          <div class="tl-content"><strong>GitHub Actions + cron-job.org</strong> — Workflow runs on <em>workflow_dispatch</em>. cron-job.org calls the GitHub API at exactly <strong>4:30 AM UTC (10:00 AM IST)</strong> every day — replacing GitHub's unreliable native scheduler which was missing/delaying runs.</div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- DEPLOYMENT -->
+    <div class="section">
+      <div class="section-title">Deployment</div>
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Details</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Platform</strong></td><td>GitHub Actions (free, public repo)</td></tr>
+          <tr><td><strong>Trigger</strong></td><td>cron-job.org → <code>workflow_dispatch</code> API at 4:30 AM UTC</td></tr>
+          <tr><td><strong>Runtime</strong></td><td>Python 3.12 on ubuntu-latest</td></tr>
+          <tr><td><strong>Secrets</strong></td><td>Gmail, Zendesk, Slack credentials stored as GitHub Secrets</td></tr>
+          <tr><td><strong>Repo</strong></td><td>github.com/Yogi2809/challan-ticket-closure-automation</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span><strong>Team:</strong> DEX · Cars24</span>
+    <span><strong>Status:</strong> ✅ Live in Production</span>
+    <span><strong>Last updated:</strong> May 2026</span>
+  </div>
+
+</div>
+</body>
+</html>
